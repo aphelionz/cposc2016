@@ -30,7 +30,7 @@
   <p><small>Mark Robert Henderson - <a href="http://mrh.io">http://mrh.io</a> - @<a href="//twitter.com/aphelionz">aphelionz</a></small></p>
 
   <p>
-    An exploration of some of the latest and most advanced featured of the
+    An exploration of some of the latest and most advanced features of the
     Web Platform. In this talk we will explore:
   </p>
 
@@ -108,13 +108,13 @@
     shadow.appendChild(clone);
   </script>
 
-  <!-- <syntax-highlight lang="javascript">
+  <syntax-highlight lang="javascript">
     var p_dropcap = document.querySelector('#dropcap');
     var shadow = p_dropcap.attachShadow({mode: 'closed'});
     var template = document.querySelector('#dropcapTemplate');
     var clone = document.importNode(template.content, true);
     shadow.appendChild(clone);
-  </syntax-highlight> -->
+  </syntax-highlight>
 
   <h2>HTML Imports</h2>
 
@@ -126,6 +126,12 @@
     var paragraph = link.import.querySelector('p');
     document.querySelector('.imports-section-content').appendChild(paragraph.cloneNode(true))
   </script>
+
+  <syntax-highlight lang="javascript">
+    var link = document.querySelector('#importsParagraph');
+    var paragraph = link.import.querySelector('p');
+    document.querySelector('.imports-section-content').appendChild(paragraph.cloneNode(true))
+  </syntax-highlight>
 
   <h2>Custom Elements</h2>
 
@@ -190,6 +196,51 @@
     })
     customParagraph.color = "orange";
   </script>
+
+  <syntax-highlight lang="javascript">
+    class ParagraphWithDropCap extends HTMLElement {
+        constructor() {
+          super();
+        }
+
+        static get observedAttributes() {
+          return ['color'];
+        }
+
+        connectedCallback() {
+          var shadow = this.attachShadow({mode: 'open'});
+          var template = document.querySelector('#dropcapTemplate');
+          var clone = document.importNode(template.content, true);
+          shadow.appendChild(clone);
+        }
+
+        attributeChangedCallback(attrName, oldVal, newVal) {
+          this[attrName] = newVal;
+        }
+
+        set color(value) {
+          if(this._color === value) return;
+          this._color = value;
+          this.setAttribute('color', value);
+
+          var event = new Event('color-change');
+          this.dispatchEvent(event);
+        }
+
+        get color() {
+          return this._color
+        }
+    }
+
+    customElements.define('paragraph-with-drop-cap', ParagraphWithDropCap)
+
+    var customParagraph = document.querySelector('paragraph-with-drop-cap');
+
+    customParagraph.addEventListener('color-change', function(e) {
+      console.log(e);
+    })
+    customParagraph.color = "orange";
+  </syntax-highlight>
 
   <h4>References</h4>
   <ul>

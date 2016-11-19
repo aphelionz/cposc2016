@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>The Future of Web Standards</title>
+  <link rel="import" href="./imports/styles.html">
+  <link rel="import" href="./<body></body>wer_components/syntax-highlight/syntax-highlight.html">
+</head>
+
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h1>The Future of Web Standards</h1>
+  <p><small>Mark Robert Henderson - http://mrh.io - @aphelionz</small></p>
+
+  <p>
+    An exploration of some of the latest and most advanced featured of the
+    Web Platform. In this talk we will explore:
+  </p>
+
+  <ul>
+    <li>The Shadow DOM</li>
+    <li>The &lt;template&gt; tag</li>
+    <li>Custom Elements</li>
+    <li>HTML Imports</li>
+    <li>CSS Variables (maybe!)</li>
+  </ul>
+
+  <p>
+    The majority of these features are features that browser vendors have
+    had access to for a long time, and are only now exposing the APIs for
+    use by the plebs (or Google engineers).
+  </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>Shadow DOM + Template</h2>
+
+  <div class="dropcap">
+    Another name for Shadow DOM could simply be "DOM Subtrees." It is
+    a platform feature that allows developers to insert an <strong>independently
+    scoped</strong> DOM tree inside of page elements.
+
+    <div slot="quote">This is a blockquote, or at least it will be.</div>
+  </div>
+
+  <template id="dropcapTemplate">
+    <style>
+      #dropcap:first-letter {
+      /*:host:first-letter { */
+        float: left;
+        color: #903;
+        font-size: 68px;
+        line-height: 53px;
+        padding-right: 8px;
+        padding-left: 3px;
+        font-family: Georgia;
+      }
+
+      p {
+        max-width: 30em;
+        color: darkblue;
+      }
+    </style>
+
+    <p id="dropcap">
+      <slot></slot>
+    </p>
+
+    <blockquote>
+      <slot name="quote"></slot>
+    </blockquote>
+  </template>
+
+  <script>
+    var p_dropcap = document.querySelector('.dropcap');
+    var shadow = p_dropcap.attachShadow({mode: 'closed'});
+    var template = document.querySelector('#dropcapTemplate');
+    var clone = document.importNode(template.content, true);
+    shadow.appendChild(clone);
+  </script>
+
+  <!-- <syntax-highlight lang="javascript">
+    var p_dropcap = document.querySelector('#dropcap');
+    var shadow = p_dropcap.attachShadow({mode: 'closed'});
+    var template = document.querySelector('#dropcapTemplate');
+    var clone = document.importNode(template.content, true);
+    shadow.appendChild(clone);
+  </syntax-highlight> -->
+
+  <h2>HTML Imports</h2>
+
+  <link id="importsParagraph" rel="import" href="./imports/paragraph.html">
+  <div class="imports-section-content"></div>
+
+  <script>
+    var link = document.querySelector('#importsParagraph');
+    var paragraph = link.import.querySelector('p');
+    document.querySelector('.imports-section-content').appendChild(paragraph.cloneNode(true))
+  </script>
+
+  <h2>Custom Elements</h2>
+
+  <p>
+    HTML Elements are instances of javascript classes.
+    Why shouldn't we be able to make our own?
+  </p>
+
+  <p>This is the <strong>v1</strong> spec.</p>
+
+  <paragraph-with-drop-cap color="#903">
+    Integer libero sem, varius luctus libero vitae, congue luctus nunc. Mauris
+    facilisis libero quis venenatis finibus. Vivamus scelerisque eleifend tristique.
+    Sed feugiat malesuada mi, eget consequat elit euismod eget. Duis tincidunt purus
+    sed pellentesque egestas. Suspendisse et pulvinar libero. Praesent quis blandit
+    velit, a eleifend dolor. Pellentesque habitant morbi tristique senectus et netus
+    et malesuada fames ac turpis egestas. Praesent placerat porttitor nulla, eu
+    convallis eros aliquam a. Praesent eget dui ac dolor porta tristique.
+  </paragraph-with-drop-cap>
+
+  <script>
+    class ParagraphWithDropCap extends HTMLElement {
+        constructor() {
+          super();
+        }
+
+        static get observedAttributes() {
+          return ['color'];
+        }
+
+        connectedCallback() {
+          var shadow = this.attachShadow({mode: 'open'});
+          var template = document.querySelector('#dropcapTemplate');
+          var clone = document.importNode(template.content, true);
+          shadow.appendChild(clone);
+        }
+
+        attributeChangedCallback(attrName, oldVal, newVal) {
+          this[attrName] = newVal;
+        }
+
+        set color(value) {
+          if(this._color === value) return;
+          this._color = value;
+          this.setAttribute('color', value);
+
+          var event = new Event('color-change');
+          this.dispatchEvent(event);
+        }
+
+        get color() {
+          return this._color
+        }
+    }
+
+    customElements.define('paragraph-with-drop-cap', ParagraphWithDropCap)
+
+    var customParagraph = document.querySelector('paragraph-with-drop-cap');
+
+    customParagraph.addEventListener('color-change', function(e) {
+      console.log(e);
+    })
+    customParagraph.color = "orange";
+  </script>
+
+  <h4>References</h4>
+  <ul>
+    <li>Polymer 2.0 Under the Hood: <a href="#">https://www.youtube.com/watch?v=iJ9hS54BRag</a></li>
+    <li>https://www.html5rocks.com/en/tutorials/webcomponents/shadowdom-201/</li>
+    <li>https://medium.com/cool-code-pal/jokes-as-a-disservice-2412631958ef#.i4jafb7jm</li>
+    <li>https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow</li>
+    <li>https://developers.google.com/web/fundamentals/getting-started/primers/customelements#reactions</li>
+  </ul>
+</body>
+
+</html>
